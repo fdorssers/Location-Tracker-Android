@@ -27,6 +27,8 @@ public class LocationTracker extends Service {
     private Observable<Location> updatedLocation;
     private Subscription subscription;
 
+    private boolean running = false;
+
     public LocationTracker() {
     }
 
@@ -35,11 +37,18 @@ public class LocationTracker extends Service {
         Timber.d("onStartCommand");
         if (intent.getAction().equals(Constants.ACTION.STARTFOREGROUND_ACTION)) {
             Timber.d("Received Start Foreground Intent ");
-            Notification notification = createNotification();
-            startLocationTracking();
-            startForeground(Constants.NOTIFICATION_ID.FOREGROUND_SERVICE, notification);
+            if(!running) {
+                Timber.d("Started running");
+                running = true;
+                Notification notification = createNotification();
+                startLocationTracking();
+                startForeground(Constants.NOTIFICATION_ID.FOREGROUND_SERVICE, notification);
+            } else {
+                Timber.d("Doing nothing");
+            }
         } else if (intent.getAction().equals(Constants.ACTION.STOPFOREGROUND_ACTION)) {
             Timber.d("Received Stop Foreground Intent");
+            running = false;
             stopLocationTracking();
             stopForeground(true);
             stopSelf();
